@@ -1,0 +1,43 @@
+spring:
+  jpa:
+    #配置数据库类型
+    database: MYSQL
+    #指定数据库的引擎
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+    #配置是否打印sql
+    show-sql: true
+    #Hibernate相关配置
+    hibernate:
+      #配置级联等级
+      #      ddl-auto: create
+      ddl-auto: update
+    open-in-view: false
+  #  jackson:
+  #    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+  rabbitmq:
+    host: 192.168.32.207
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /transaction_demo
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 2000ms
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
