@@ -1,6 +1,10 @@
 package transaction.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
+import transaction.entities.Commodity;
+import transaction.mapper.CommodityMapper;
 import transaction.service.CommodityService;
 
 /**
@@ -8,10 +12,16 @@ import transaction.service.CommodityService;
  * @date 2021/4/15 10:26
  */
 @Service
-public class CommodityServiceImpl implements CommodityService {
+public class CommodityServiceImpl extends ServiceImpl<CommodityMapper, Commodity> implements CommodityService {
+
+    @RabbitListener(queues = "")
+    public void consumer(){
+        // TODO 减库存
+    }
 
     @Override
     public String decreaseStock(Long commodityId) {
+        // TODO
         return null;
     }
 
