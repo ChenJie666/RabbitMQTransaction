@@ -14,9 +14,14 @@ import transaction.service.UserService;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    @RabbitListener(queues = "")
-    public void consumer(){
-        // TODO
+    @RabbitListener(queues = "order-queue")
+    public void orderQueueConsumer(){
+        // TODO 减库存，如果失败拒收消息进入私信队列
+    }
+
+    @RabbitListener(queues = "dead-queue")
+    public void deadQueueConsumer(){
+        // TODO 减库存，如果失败拒收消息进行报警
     }
 
     @Override
