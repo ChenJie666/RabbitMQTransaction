@@ -17,9 +17,5 @@ public class CommodityController {
     @Resource
     private CommodityService commodityService;
 
-    @GetMapping("/decreaseStock")
-    public String decreaseStock(@RequestParam Long commodityId) {
-        return commodityService.decreaseStock(commodityId);
-    }
 
 }

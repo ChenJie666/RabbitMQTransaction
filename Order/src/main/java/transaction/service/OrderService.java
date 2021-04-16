@@ -8,5 +8,5 @@ import transaction.entities.TbOrder;
  * @date 2021/4/15 10:26
  */
 public interface OrderService extends IService<TbOrder> {
-    String order(Long commodityId, Long userId, Long points);
+    String order(TbOrder tbOrder);
 }

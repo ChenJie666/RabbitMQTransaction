@@ -1,9 +1,6 @@
 package transaction.config;
 
-import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
@@ -22,32 +19,50 @@ public class RabbitConfig {
 
     @PostConstruct
     public void createExchange() {
-        DirectExchange orderExchange = new DirectExchange("order-exchange", true, false);
-        DirectExchange deadExchange = new DirectExchange("dead-exchange", true, false);
+        FanoutExchange fanoutExchange = new FanoutExchange("order.exchange",true,false);
+        DirectExchange userDeadExchange = new DirectExchange("user.dead.exchange", true, false);
+        DirectExchange commodityDeadExchange = new DirectExchange("commodity.dead.exchange", true, false);
 
-        amqpAdmin.declareExchange(orderExchange);
-        amqpAdmin.declareExchange(deadExchange);
+        amqpAdmin.declareExchange(fanoutExchange);
+        amqpAdmin.declareExchange(userDeadExchange);
+        amqpAdmin.declareExchange(commodityDeadExchange);
     }
 
     @PostConstruct
     public void createQueue() {
-        Queue orderQueue = new Queue("order-queue", true, false, false);
+        HashMap<String, Object> userArguments = new HashMap<>(4);
+        userArguments.put("x-dead-letter-exchange", "user.dead.exchange");
+        userArguments.put("x-dead-letter-routing-key", "user.dead.routing");
+        Queue userQueue = new Queue("user.queue", true, false, false, userArguments);
 
-        HashMap<String, Object> arguments = new HashMap<>();
-        arguments.put("x-dead-letter-exchange-delay", "deadExchange");
-        Queue deadQueue = new Queue("dead-queue", true, false, false, arguments);
+        HashMap<String, Object> commodityArguments = new HashMap<>(4);
+        commodityArguments.put("x-dead-letter-exchange", "commodity.dead.exchange");
+        commodityArguments.put("x-dead-letter-routing-key", "commodity.dead.routing");
+        Queue commodityQueue = new Queue("commodity.queue", true, false, false, commodityArguments);
 
-        amqpAdmin.declareQueue(orderQueue);
-        amqpAdmin.declareQueue(deadQueue);
+
+        Queue userDeadQueue = new Queue("user.dead.queue", true, false, false);
+
+        Queue commodityDeadQueue = new Queue("commodity.dead.queue", true, false, false);
+
+        amqpAdmin.declareQueue(userQueue);
+        amqpAdmin.declareQueue(commodityQueue);
+        amqpAdmin.declareQueue(userDeadQueue);
+        amqpAdmin.declareQueue(commodityDeadQueue);
     }
 
     @PostConstruct
     public void binding() {
-        Binding orderBinding = new Binding("order-queue", Binding.DestinationType.QUEUE, "order-exchange", "order.routing", null);
-        amqpAdmin.declareBinding(orderBinding);
+        Binding userBinding = new Binding("user.queue", Binding.DestinationType.QUEUE, "order.exchange", "", null);
+        amqpAdmin.declareBinding(userBinding);
+        Binding commodityBinding = new Binding("commodity.queue", Binding.DestinationType.QUEUE, "order.exchange", "", null);
+        amqpAdmin.declareBinding(commodityBinding);
 
-        Binding deadBinding = new Binding("dead-queue", Binding.DestinationType.QUEUE, "dead-exchange", "dead.routing", null);
-        amqpAdmin.declareBinding(deadBinding);
+        Binding userDeadBinding = new Binding("user.dead.queue", Binding.DestinationType.QUEUE, "user.dead.exchange", "user.dead.routing", null);
+        amqpAdmin.declareBinding(userDeadBinding);
+
+        Binding commodityDeadBinding = new Binding("commodity.dead.queue", Binding.DestinationType.QUEUE, "commodity.dead.exchange", "commodity.dead.routing", null);
+        amqpAdmin.declareBinding(commodityDeadBinding);
     }
 
 }

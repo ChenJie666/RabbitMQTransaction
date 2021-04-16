@@ -17,11 +17,5 @@ public class UserController {
     @Resource
     private UserService userService;
 
-    @GetMapping("/order")
-    public String order(@RequestParam Long commodityId,
-                        @RequestParam Long userId,
-                        @RequestParam Long points) {
-        return userService.decreasePoints(userId, points);
-    }
 
 }

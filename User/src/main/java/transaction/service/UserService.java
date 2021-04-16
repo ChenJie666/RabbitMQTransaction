@@ -8,5 +8,5 @@ import transaction.entities.User;
  * @date 2021/4/15 10:26
  */
 public interface UserService extends IService<User> {
-    String decreasePoints(Long userId, Long points);
+    Boolean decreasePoints(Long userId, Long points);
 }

@@ -8,5 +8,5 @@ import transaction.entities.Commodity;
  * @date 2021/4/15 10:26
  */
 public interface CommodityService extends IService<Commodity> {
-    String decreaseStock(Long commodityId);
+    Boolean decreaseStock(Long commodityId, Long num);
 }

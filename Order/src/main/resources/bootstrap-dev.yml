@@ -27,10 +27,10 @@ spring:
     listener:
       simple:
         acknowledge-mode: manual
-        retry:
-          enabled: true
-          max-attempts: 10
-          initial-interval: 2000ms
+#        retry:
+#          enabled: true
+#          max-attempts: 10
+#          initial-interval: 2000ms
 
 management:
   endpoints:
