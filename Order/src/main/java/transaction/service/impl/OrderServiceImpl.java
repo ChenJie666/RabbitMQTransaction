@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import transaction.entities.TbAckOrder;
 import transaction.entities.TbOrder;
@@ -30,9 +31,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, TbOrder> implemen
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String order(TbOrder tbOrder) {
         // TODO 创建订单并发送消息
-
         // 1. 存储订单
         boolean save = save(tbOrder);
 

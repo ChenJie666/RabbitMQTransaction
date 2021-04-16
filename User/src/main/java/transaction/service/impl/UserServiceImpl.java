@@ -6,12 +6,15 @@ import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import transaction.entities.TbAckOrder;
 import transaction.entities.User;
 import transaction.mapper.UserMapper;
 import transaction.service.UserService;
 
 import java.io.IOException;
+
+import static org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus;
 
 
 /**
@@ -22,6 +25,7 @@ import java.io.IOException;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     @RabbitListener(queues = "user.queue")
+    @Transactional(rollbackFor = Exception.class)
     public void orderQueueConsumer(Message message, TbAckOrder tbAckOrder, Channel channel) throws IOException {
         // TODO 减库存，如果失败拒收消息进入私信队列
         try {
@@ -31,10 +35,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } catch (Exception e) {
             long deliveryTag = message.getMessageProperties().getDeliveryTag();
             channel.basicNack(deliveryTag,false,false);
+            currentTransactionStatus().setRollbackOnly();
         }
     }
 
     @RabbitListener(queues = "user.dead.queue")
+    @Transactional(rollbackFor = Exception.class)
     public void deadQueueConsumer(Message message, TbAckOrder tbAckOrder, Channel channel) throws IOException {
         // TODO 减库存，如果失败拒收消息进行报警
         try {
@@ -47,6 +53,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             System.out.println(e.getMessage());
             long deliveryTag = message.getMessageProperties().getDeliveryTag();
             channel.basicNack(deliveryTag,false,false);
+            currentTransactionStatus().setRollbackOnly();
         }
     }
 
